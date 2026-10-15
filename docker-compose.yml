@@ -1,0 +1,84 @@
+name: trabalho-docker-academico
+
+x-wordpress: &wordpress
+  image: wordpress:5.4.2-php7.2-apache
+  user: "${LOCAL_UID:-501}:${LOCAL_GID:-20}"
+  entrypoint: ["bash", "/opt/laboratorio/iniciar-wordpress.sh"]
+  environment:
+    APACHE_RUN_USER: "#${LOCAL_UID:-501}"
+    APACHE_RUN_GROUP: "#${LOCAL_GID:-20}"
+    WORDPRESS_DB_HOST: mysql:3306
+    WORDPRESS_DB_USER: usr-wordpress
+    WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:?Defina MYSQL_PASSWORD no .env}
+    WORDPRESS_DB_NAME: wordpress
+  volumes:
+    - ./html:/var/www/html
+    - ./iniciar-wordpress.sh:/opt/laboratorio/iniciar-wordpress.sh:ro
+  networks:
+    - web
+    - banco
+  healthcheck:
+    test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1',80)?0:1);"]
+    interval: 10s
+    timeout: 5s
+    retries: 30
+
+services:
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD no .env}
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: usr-wordpress
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Defina MYSQL_PASSWORD no .env}
+    volumes:
+      - ./dados/mysql:/var/lib/mysql
+    networks:
+      - banco
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_PASSWORD\" mysql -h 127.0.0.1 -u\"$$MYSQL_USER\" -D wordpress -e 'SELECT 1' >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+
+  wordpress1:
+    <<: *wordpress
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  wordpress2:
+    <<: *wordpress
+    depends_on:
+      wordpress1:
+        condition: service_healthy
+
+  wordpress3:
+    <<: *wordpress
+    depends_on:
+      wordpress2:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.19.0
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      wordpress1:
+        condition: service_healthy
+      wordpress2:
+        condition: service_healthy
+      wordpress3:
+        condition: service_healthy
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./html:/usr/share/nginx/html:ro
+    networks:
+      - web
+
+networks:
+  web:
+  banco:
+    internal: true

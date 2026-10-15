@@ -1,0 +1,100 @@
+{
+  "capturadoEm": "2026-10-14T21:56:01.451Z",
+  "metodo": "Chromium headless/CDP, perfil novo isolado, nenhuma autenticacao",
+  "network": [
+    {
+      "utc": "2026-10-14T21:55:50.090Z",
+      "url": "http://127.0.0.1:8080/",
+      "status": 200,
+      "protocol": "http/1.1",
+      "upstream": "172.18.0.2:80",
+      "contentType": "text/html"
+    },
+    {
+      "utc": "2026-10-14T21:55:51.071Z",
+      "url": "http://127.0.0.1:8080/",
+      "status": 200,
+      "protocol": "http/1.1",
+      "upstream": "172.18.0.3:80",
+      "contentType": "text/html"
+    },
+    {
+      "utc": "2026-10-14T21:55:56.151Z",
+      "url": "http://127.0.0.1:8080/",
+      "status": 200,
+      "protocol": "http/1.1",
+      "upstream": "172.18.0.4:80",
+      "contentType": "text/html"
+    },
+    {
+      "utc": "2026-10-14T21:55:56.212Z",
+      "url": "http://127.0.0.1:8080/",
+      "status": 200,
+      "protocol": "http/1.1",
+      "upstream": "172.18.0.4:80",
+      "contentType": "text/html"
+    },
+    {
+      "utc": "2026-10-14T21:55:56.260Z",
+      "url": "http://127.0.0.1:8080/",
+      "status": 200,
+      "protocol": "http/1.1",
+      "upstream": "172.18.0.2:80",
+      "contentType": "text/html"
+    },
+    {
+      "utc": "2026-10-14T21:55:56.313Z",
+      "url": "http://127.0.0.1:8080/",
+      "status": 200,
+      "protocol": "http/1.1",
+      "upstream": "172.18.0.3:80",
+      "contentType": "text/html"
+    },
+    {
+      "utc": "2026-10-14T21:55:56.360Z",
+      "url": "http://127.0.0.1:8080/",
+      "status": 200,
+      "protocol": "http/1.1",
+      "upstream": "172.18.0.4:80",
+      "contentType": "text/html"
+    },
+    {
+      "utc": "2026-10-14T21:56:01.371Z",
+      "url": "http://127.0.0.1:8080/",
+      "status": 200,
+      "protocol": "http/1.1",
+      "upstream": "172.18.0.4:80",
+      "contentType": "text/html"
+    },
+    {
+      "utc": "2026-10-14T21:56:01.426Z",
+      "url": "http://127.0.0.1:8080/",
+      "status": 200,
+      "protocol": "http/1.1",
+      "upstream": "172.18.0.2:80",
+      "contentType": "text/html"
+    }
+  ],
+  "details": [
+    {
+      "device": "desktop",
+      "title": "Trabalho Docker — WordPress com Nginx – Just another WordPress site",
+      "url": "http://127.0.0.1:8080/",
+      "width": 1440,
+      "scrollWidth": 1440,
+      "text": "Skip to the content\nTrabalho Docker — WordPress com Nginx\nJust another WordPress site\nSample Page\nSearch\nCategories\nUNCATEGORIZED\nHello world!\nPost author\nBy laboratorio\nPost date\nOctober 14, 2026\n1 Comment\non Hello world!\n\nWelcome to WordPress. This is your first post. Edit or delete it, then start writing!\n\nSearch for:\nRecent Posts\nHello world!\nRecent Comments\nA WordPress Commenter on Hello world!\nArchives\nOctober 2026\nCategories\nUncategorized\nMeta\nLog in\nEntries feed\nComments feed\nWordPress.org\n\n© 2026 Trabalho Docker — WordPress com Nginx\n\nPowered by WordPress\n\nTo the top ↑",
+      "screenshot": "site-desktop.png",
+      "height": 1405
+    },
+    {
+      "device": "mobile",
+      "title": "Trabalho Docker — WordPress com Nginx – Just another WordPress site",
+      "url": "http://127.0.0.1:8080/",
+      "width": 390,
+      "scrollWidth": 390,
+      "text": "Skip to the content\nSearch\nTrabalho Docker — WordPress com Nginx\nMenu\nCategories\nUNCATEGORIZED\nHello world!\nPost author\nBy laboratorio\nPost date\nOctober 14, 2026\n1 Comment\non Hello world!\n\nWelcome to WordPress. This is your first post. Edit or delete it, then start writing!\n\nSearch for:\nRecent Posts\nHello world!\nRecent Comments\nA WordPress Commenter on Hello world!\nArchives\nOctober 2026\nCategories\nUncategorized\nMeta\nLog in\nEntries feed\nComments feed\nWordPress.org\n\n© 2026 Trabalho Docker — WordPress com Nginx\n\nUp ↑",
+      "screenshot": "site-mobile.png",
+      "height": 1324
+    }
+  ]
+}

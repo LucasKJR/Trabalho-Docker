@@ -1,0 +1,32 @@
+[
+  {
+    "upstream": "172.18.0.4:80",
+    "sha256_html": "3d6099a7720ba2966fd2e944f500e1d71dadf38af74d21137a38bfb7676c61ff",
+    "bytes": 25945
+  },
+  {
+    "upstream": "172.18.0.2:80",
+    "sha256_html": "3d6099a7720ba2966fd2e944f500e1d71dadf38af74d21137a38bfb7676c61ff",
+    "bytes": 25945
+  },
+  {
+    "upstream": "172.18.0.3:80",
+    "sha256_html": "3d6099a7720ba2966fd2e944f500e1d71dadf38af74d21137a38bfb7676c61ff",
+    "bytes": 25945
+  },
+  {
+    "upstream": "172.18.0.4:80",
+    "sha256_html": "3d6099a7720ba2966fd2e944f500e1d71dadf38af74d21137a38bfb7676c61ff",
+    "bytes": 25945
+  },
+  {
+    "upstream": "172.18.0.2:80",
+    "sha256_html": "3d6099a7720ba2966fd2e944f500e1d71dadf38af74d21137a38bfb7676c61ff",
+    "bytes": 25945
+  },
+  {
+    "upstream": "172.18.0.3:80",
+    "sha256_html": "3d6099a7720ba2966fd2e944f500e1d71dadf38af74d21137a38bfb7676c61ff",
+    "bytes": 25945
+  }
+]

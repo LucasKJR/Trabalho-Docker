@@ -1,0 +1,42 @@
+# Credenciais e configuracao privada
+.env
+.env.*
+!.env.example
+ACESSO-LOCAL.txt
+**/wp-config.php
+*.pem
+*.key
+*.p12
+*.pfx
+
+# WordPress e banco em execucao
+**/html/
+**/dados/
+**/db_data/
+*.sql
+*.db
+*.sqlite*
+
+# Backups, discos virtuais e runtimes
+**/backup/
+**/backups/
+**/runtime/
+**/.colima/
+*.qcow2
+*.raw
+*.img
+*.sock
+
+# Caches, pacotes e perfis do navegador
+**/headless-profile*/
+**/cookies*
+**/Cookies*
+*.har
+**/.cache/
+**/cache/
+**/caches/
+**/node_modules/
+**/__pycache__/
+*.pyc
+*.log
+.DS_Store
