@@ -1,6 +1,7 @@
 # WordPress com balanceamento de carga em cinco contêineres
 
-Aluno e turma: preencher.
+Autores: Lucas Kohagura, Pedro Luis e Joao Pedro Lopes.
+
 
 Data da revisão: 15 de outubro de 2026.
 
@@ -36,17 +37,33 @@ MySQL 5.7 utiliza linux/amd64 em Apple Silicon, com limites de memória e conex�
 - Nenhum serviço configurado como privileged.
 - Sintaxe shell aprovada; preparador reexecutado sem substituir segredos existentes.
 
-Essas verificações são estáticas e de preparação. Não demonstram que os contêineres desta revisão funcionam em conjunto.
+## Resultados da execução
 
-## Bloqueio e testes pendentes
+Em 15/10/2026, os cinco serviços foram executados no perfil Docker dedicado. MySQL e os três WordPress ficaram saudáveis; Nginx respondeu pela única porta publicada, 127.0.0.1:8086. A validação nginx -t e a análise php -l foram concluídas sem erro.
 
-O perfil Colima dedicado foi encontrado parado e a tentativa de retomada informou estado Broken, com processo existente e socket recusando conexão. Não foi forçada a parada do processo nem alterado o perfil padrão. Os dados e a implementação anterior permanecem preservados.
+O WordPress foi instalado em banco próprio, com conteúdo inicial de demonstração e usuário fictício. A consulta confirmou 12 tabelas no banco experimento. Nove requisições retornaram HTTP 200, com três destinos: 172.20.0.2:80, 172.20.0.3:80 e 172.20.0.4:80. O SHA-256 do HTML foi igual nas nove respostas. Os IPs são internos e podem mudar em outra execução.
 
-Ainda são necessários: php -l na versão PHP 7.2, nginx -t, início dos cinco serviços, instalação WordPress, HTTP 200, alternância de três X-Upstream, igualdade do conteúdo entre instâncias, consulta ao banco, teste de persistência após parar/retomar e screenshots reais desta revisão. Nenhuma evidência de outra configuração foi apresentada como prova do código atual.
+O projeto foi parado com docker-compose stop e retomado com docker-compose up -d. Após a retomada, o verificador voltou a registrar APROVADO_RUNTIME, com acesso ao banco e à página instalada. O log de persistência e o registro de runtime estão anexados na pasta de evidências. Não foi executado teste de carga.
 
-## Conclusão provisória
+## Evidências
 
-A revisão passou nas verificações estruturais e de preparação. A aprovação funcional permanece pendente da recuperação do ambiente dedicado e da execução dos testes descritos. Esta conclusão registra o limite observado e não afirma funcionamento que ainda não foi comprovado.
+As figuras são capturas reais desta execução: três capturas de Terminal e a página instalada em navegador Chromium com perfil isolado. As capturas do Terminal excluem a barra de título com identificadores pessoais. Nenhuma imagem foi gerada a partir de logs. O registro navegador-http.json documenta nove respostas HTTP observadas no navegador.
+
+![Cinco serviços ativos e porta publicada somente no Nginx.](evidencias/capturas/01-terminal-containers.png)
+
+![Nove requisições, três valores X-Upstream e resposta HTTP 200.](evidencias/capturas/02-terminal-balanceamento.png)
+
+![Nginx, PHP, verificador e consulta às 12 tabelas.](evidencias/capturas/03-terminal-validacao.png)
+
+![Página WordPress instalada, capturada em desktop.](evidencias/capturas/site-desktop.png)
+
+![Página WordPress instalada, capturada em celular.](evidencias/capturas/site-mobile.png)
+
+## Conclusão
+
+O experimento foi validado localmente: Nginx distribuiu requisições entre três instâncias WordPress com arquivos e banco compartilhados, mantendo o conteúdo após parar e retomar. Os registros e capturas permitem conferir os resultados apresentados. As versões foram preservadas para a atividade e o teste não caracteriza dimensionamento para uso público.
+
+Código, dados, credenciais e evidências permanecem no SSD dedicado. O pacote público contém código e provas revisadas, sem credenciais, banco ou discos virtuais. Executáveis e componentes de integração do macOS continuam no disco interno.
 
 ## Referências técnicas oficiais
 

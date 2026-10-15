@@ -1,15 +1,31 @@
 {
-  "data_utc": "2026-10-15T11:49:20.917235+00:00",
-  "status": "VALIDACAO_ESTATICA_APROVADA_EXECUCAO_PENDENTE",
+  "data_utc": "2026-10-15T20:08:15.740038+00:00",
+  "status": "APROVADO_RUNTIME",
   "servicos": 5,
   "imagens": [
     "mysql:5.7",
     "wordpress:5.4.2-php7.2-apache",
     "nginx:1.19.0"
   ],
-  "preservacao_segredos_preparador": "confirmada por comparacao de hashes antes/depois",
-  "evidencias_desta_revisao": [
-    "validacao-estatica.json"
+  "http": {
+    "requisicoes": 9,
+    "status": 200,
+    "upstreams": [
+      "172.20.0.2:80",
+      "172.20.0.3:80",
+      "172.20.0.4:80"
+    ],
+    "conteudo_identico": true
+  },
+  "banco": {
+    "nome": "experimento",
+    "tabelas": 12
+  },
+  "persistencia": "stop/up concluido; verificador aprovado depois da retomada",
+  "evidencias": [
+    "evidencias/checagem-runtime.json",
+    "evidencias/persistencia-2026-10-15.txt",
+    "evidencias/capturas/"
   ],
-  "bloqueio": "perfil Colima t Broken; processo existente e socket indisponivel; sem parada forcada"
+  "limites": "Sem teste de carga; resultados locais desta revisao; IPs internos podem mudar."
 }

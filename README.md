@@ -1,8 +1,11 @@
 # WordPress com balanceamento de carga
 
+Autores: Lucas Kohagura, Pedro Luis e Joao Pedro Lopes.
+
+
 Experimento de cinco contêineres: um Nginx distribui requisições entre três instâncias WordPress, conectadas a um único MySQL. Código e diretórios persistentes podem ser mantidos em uma pasta dedicada no SSD.
 
-**Estado desta revisão:** a configuração Compose e a preparação dos arquivos passaram nas verificações estáticas. Os testes de execução, Nginx e PHP ainda estão pendentes: o perfil Docker dedicado apresentou falha de comunicação. Não se apresenta a revisão como funcionalmente aprovada.
+**Estado desta revisão:** APROVADO_RUNTIME em 15/10/2026. Cinco serviços ativos, Nginx e PHP válidos, nove respostas HTTP 200 com três destinos e conteúdo idêntico. A verificação passou novamente após parar e retomar o projeto. Capturas reais e registros estão em documentacao/evidencias.
 
 ## Arquitetura
 
@@ -35,7 +38,7 @@ docker-compose config --quiet
 
 O preparador cria três arquivos privados em segredos e uma configuração .env com UID/GID do usuário e URL local. Não mostra nem publica as senhas. A reexecução não troca os segredos existentes. Os arquivos privados precisam continuar disponíveis enquanto os contêineres estiverem em uso.
 
-## Execução prevista — ainda requer validação desta revisão
+## Abrir e executar
 
 Com o Docker acessível e 8086 livre:
 
@@ -69,8 +72,16 @@ MySQL 5.7 usa linux/amd64 no Apple Silicon. A configuração WordPress é fornec
 
 As versões foram fixadas para a atividade. Atualizações automáticas e cron do WordPress ficam desabilitados somente nesta instância local para preservar o experimento. O banco tem limites de conexão e buffer apropriados a um laboratório pequeno. As licenças e os avisos das imagens permanecem intactos; o repositório não distribui o código dessas dependências.
 
-Referências técnicas oficiais em documentacao/ADAPTACOES.md. As evidências registram os limites atuais, sem reaproveitar resultados de outra configuração como prova desta revisão.
+Referências técnicas oficiais em documentacao/ADAPTACOES.md. As evidências correspondem ao código desta revisão. Os testes são funcionais locais; não medem capacidade ou desempenho sob carga.
 
 ## Entrega: codigo, scripts e prints
 
-O roteiro de evidencias esta em [documentacao/evidencias/README.md](documentacao/evidencias/README.md). Ele lista os prints reais do terminal, aplicacao e cabecalhos necessarios para completar a entrega. A pasta capturas ainda nao contem esses prints: a execucao da revisao esta bloqueada. Nenhum resultado alheio ou imagem gerada a partir de texto sera apresentado como prova de funcionamento.
+O roteiro de evidencias esta em [documentacao/evidencias/README.md](documentacao/evidencias/README.md). A pasta capturas contém três prints reais do Terminal e duas capturas da página instalada, em desktop e celular. O registro navegador-http.json contém nove respostas observadas pelo Chromium/CDP, incluindo X-Upstream. Os PNGs do terminal foram capturados diretamente de janelas dedicadas, sem a barra de título com dados pessoais.
+
+## O que fica no SSD
+
+Código, Compose, arquivos html, data/mysql, segredos, backup e evidências ficam na pasta dedicada. No Mac utilizado, os discos da VM dedicada também ficam no SSD. Os executáveis Docker/Colima, componentes do macOS e caches de ferramentas permanecem no disco interno; o socket de acesso usa um alias temporário em /tmp. O pacote de entrega não inclui dados do banco, senhas nem discos da VM. Em outro computador, execute o preparador e faça uma nova instalação local.
+
+![WordPress instalado nesta revisão](documentacao/evidencias/capturas/site-desktop.png)
+
+As cinco capturas reais estão na [galeria de evidências](documentacao/evidencias/README.md#capturas-da-execução).

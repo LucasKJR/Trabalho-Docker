@@ -14,7 +14,8 @@
   "rede_banco_interna": true,
   "script_shell_sintaticamente_valido": true,
   "preparador_reexecutado_sem_sobrescrever_segredos": true,
-  "execucao_containers": "PENDENTE: perfil Colima t Broken; processo ainda existe e socket recusa conexao",
-  "nginx_t": "PENDENTE",
-  "php_lint": "PENDENTE: PHP local indisponivel"
+  "execucao_containers": "APROVADO_RUNTIME; ver checagem-runtime.json",
+  "nginx_t": "APROVADO",
+  "php_lint": "APROVADO no PHP da imagem WordPress",
+  "atualizado_utc": "2026-10-15T20:08:15.740038+00:00"
 }

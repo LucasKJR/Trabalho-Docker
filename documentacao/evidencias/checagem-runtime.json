@@ -1,5 +1,5 @@
 {
-  "utc": "2026-10-15T13:25:39.061815+00:00",
+  "utc": "2026-10-15T20:08:15.740038+00:00",
   "modo": "runtime",
   "checagens": [
     {
@@ -10,16 +10,223 @@
         "--format",
         "{{.Name}}"
       ],
-      "exit_code": 1,
-      "saida": "\nCannot connect to the Docker daemon at unix:///tmp/trabalho-docker-ssd/colima/t/docker.sock. Is the docker daemon running?\n"
+      "exit_code": 0,
+      "saida": "colima-t\n"
+    },
+    {
+      "nome": "containers",
+      "comando": [
+        "docker-compose",
+        "--project-directory",
+        "<PASTA_DO_PROJETO>",
+        "-f",
+        "<PASTA_DO_PROJETO>/docker-compose.yml",
+        "ps",
+        "-a"
+      ],
+      "exit_code": 0,
+      "saida": "NAME                                 IMAGE                           COMMAND                  SERVICE      CREATED         STATUS                   PORTS\nwordpress-experimento-database-1     mysql:5.7                       \"docker-entrypoint.s…\"   database     9 minutes ago   Up 6 minutes (healthy)   3306/tcp, 33060/tcp\nwordpress-experimento-nginx-1        nginx:1.19.0                    \"/docker-entrypoint.…\"   nginx        6 hours ago     Up 5 minutes             127.0.0.1:8086->80/tcp\nwordpress-experimento-wordpress1-1   wordpress:5.4.2-php7.2-apache   \"/bin/sh /opt/experi…\"   wordpress1   6 hours ago     Up 6 minutes (healthy)   80/tcp\nwordpress-experimento-wordpress2-1   wordpress:5.4.2-php7.2-apache   \"/bin/sh /opt/experi…\"   wordpress2   6 hours ago     Up 6 minutes (healthy)   80/tcp\nwordpress-experimento-wordpress3-1   wordpress:5.4.2-php7.2-apache   \"/bin/sh /opt/experi…\"   wordpress3   6 hours ago     Up 5 minutes (healthy)   80/tcp\n"
+    },
+    {
+      "nome": "identificadores",
+      "comando": [
+        "docker-compose",
+        "--project-directory",
+        "<PASTA_DO_PROJETO>",
+        "-f",
+        "<PASTA_DO_PROJETO>/docker-compose.yml",
+        "ps",
+        "-q"
+      ],
+      "exit_code": 0,
+      "saida": "26d5d1062cbaee647bf80800ee85c74bc5153a3a4e15e6c53009dadd11d0d17b\n35f24de5385c9feb0399d2cdda12c7e91f3c2b5132ac468fe9af791641bfd91e\ne2ec8b4ad29adad845d9b8486b91289b45e2a05f034823bfe3c7666831763bde\n8428416a5988fef0a00b687195ca634a6c4cc4ca0c5f9fbaaa29177ac6cb9302\n4993566415cbc2d49433e3b6b5702d362e76a7ecea9981d51b9c9aa1ab7dbc42\n"
+    },
+    {
+      "nome": "nginx_config",
+      "comando": [
+        "docker-compose",
+        "--project-directory",
+        "<PASTA_DO_PROJETO>",
+        "-f",
+        "<PASTA_DO_PROJETO>/docker-compose.yml",
+        "exec",
+        "-T",
+        "nginx",
+        "nginx",
+        "-t"
+      ],
+      "exit_code": 0,
+      "saida": "nginx: the configuration file /etc/nginx/nginx.conf syntax is ok\nnginx: configuration file /etc/nginx/nginx.conf test is successful\n"
+    },
+    {
+      "nome": "php_config",
+      "comando": [
+        "docker-compose",
+        "--project-directory",
+        "<PASTA_DO_PROJETO>",
+        "-f",
+        "<PASTA_DO_PROJETO>/docker-compose.yml",
+        "exec",
+        "-T",
+        "wordpress1",
+        "php",
+        "-l",
+        "/var/www/html/wp-config.php"
+      ],
+      "exit_code": 0,
+      "saida": "No syntax errors detected in /var/www/html/wp-config.php\n"
+    },
+    {
+      "nome": "banco",
+      "comando": [
+        "docker-compose",
+        "--project-directory",
+        "<PASTA_DO_PROJETO>",
+        "-f",
+        "<PASTA_DO_PROJETO>/docker-compose.yml",
+        "exec",
+        "-T",
+        "database",
+        "sh",
+        "-c",
+        "MYSQL_PWD=\"$(cat /run/secrets/senha_aplicacao)\" mysql -uaplicacao -D experimento -e \"SELECT DATABASE(); SHOW TABLES;\""
+      ],
+      "exit_code": 0,
+      "saida": "DATABASE()\nexperimento\nTables_in_experimento\nwp_commentmeta\nwp_comments\nwp_links\nwp_options\nwp_postmeta\nwp_posts\nwp_term_relationships\nwp_term_taxonomy\nwp_termmeta\nwp_terms\nwp_usermeta\nwp_users\n"
     }
   ],
-  "status": "BLOQUEADO_OU_REPROVADO",
+  "status": "APROVADO_RUNTIME",
   "estrutura": {
     "servicos": 5,
     "imagens_corretas": true,
     "apenas_nginx_publicado_em_loopback": true,
     "privileged": false
   },
-  "erro": "servidor_docker: comando nao concluiu; confira a saida registrada"
+  "containers": [
+    {
+      "servico": "database",
+      "estado": "running",
+      "saude": "healthy",
+      "redes": {
+        "wordpress-experimento_persistencia": "172.21.0.2"
+      },
+      "portas": {},
+      "privileged": false
+    },
+    {
+      "servico": "nginx",
+      "estado": "running",
+      "saude": null,
+      "redes": {
+        "wordpress-experimento_requisicoes": "172.20.0.5"
+      },
+      "portas": {
+        "80/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8086"
+          }
+        ]
+      },
+      "privileged": false
+    },
+    {
+      "servico": "wordpress1",
+      "estado": "running",
+      "saude": "healthy",
+      "redes": {
+        "wordpress-experimento_persistencia": "172.21.0.3",
+        "wordpress-experimento_requisicoes": "172.20.0.2"
+      },
+      "portas": {},
+      "privileged": false
+    },
+    {
+      "servico": "wordpress2",
+      "estado": "running",
+      "saude": "healthy",
+      "redes": {
+        "wordpress-experimento_persistencia": "172.21.0.4",
+        "wordpress-experimento_requisicoes": "172.20.0.3"
+      },
+      "portas": {},
+      "privileged": false
+    },
+    {
+      "servico": "wordpress3",
+      "estado": "running",
+      "saude": "healthy",
+      "redes": {
+        "wordpress-experimento_persistencia": "172.21.0.5",
+        "wordpress-experimento_requisicoes": "172.20.0.4"
+      },
+      "portas": {},
+      "privileged": false
+    }
+  ],
+  "http": [
+    {
+      "numero": 1,
+      "status": 200,
+      "upstream": "172.20.0.3:80",
+      "bytes": 25953,
+      "sha256_html": "a525ca732bd4f334d50345619ff88d5435721ee45b89d56a587aa419833ed7c4"
+    },
+    {
+      "numero": 2,
+      "status": 200,
+      "upstream": "172.20.0.4:80",
+      "bytes": 25953,
+      "sha256_html": "a525ca732bd4f334d50345619ff88d5435721ee45b89d56a587aa419833ed7c4"
+    },
+    {
+      "numero": 3,
+      "status": 200,
+      "upstream": "172.20.0.3:80",
+      "bytes": 25953,
+      "sha256_html": "a525ca732bd4f334d50345619ff88d5435721ee45b89d56a587aa419833ed7c4"
+    },
+    {
+      "numero": 4,
+      "status": 200,
+      "upstream": "172.20.0.4:80",
+      "bytes": 25953,
+      "sha256_html": "a525ca732bd4f334d50345619ff88d5435721ee45b89d56a587aa419833ed7c4"
+    },
+    {
+      "numero": 5,
+      "status": 200,
+      "upstream": "172.20.0.2:80",
+      "bytes": 25953,
+      "sha256_html": "a525ca732bd4f334d50345619ff88d5435721ee45b89d56a587aa419833ed7c4"
+    },
+    {
+      "numero": 6,
+      "status": 200,
+      "upstream": "172.20.0.3:80",
+      "bytes": 25953,
+      "sha256_html": "a525ca732bd4f334d50345619ff88d5435721ee45b89d56a587aa419833ed7c4"
+    },
+    {
+      "numero": 7,
+      "status": 200,
+      "upstream": "172.20.0.4:80",
+      "bytes": 25953,
+      "sha256_html": "a525ca732bd4f334d50345619ff88d5435721ee45b89d56a587aa419833ed7c4"
+    },
+    {
+      "numero": 8,
+      "status": 200,
+      "upstream": "172.20.0.2:80",
+      "bytes": 25953,
+      "sha256_html": "a525ca732bd4f334d50345619ff88d5435721ee45b89d56a587aa419833ed7c4"
+    },
+    {
+      "numero": 9,
+      "status": 200,
+      "upstream": "172.20.0.3:80",
+      "bytes": 25953,
+      "sha256_html": "a525ca732bd4f334d50345619ff88d5435721ee45b89d56a587aa419833ed7c4"
+    }
+  ]
 }

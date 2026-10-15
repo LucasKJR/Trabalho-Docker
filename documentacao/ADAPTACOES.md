@@ -16,7 +16,9 @@ A configuração foi elaborada para os requisitos da atividade: três servidores
 
 Foram aprovadas a resolução Compose, a conferência de cinco serviços e tags, isolamento de portas, redes, separação da senha root e sintaxe shell. O preparador foi reexecutado em pasta temporária para verificar preservação dos arquivos.
 
-Não foram concluídos php -l, nginx -t nem testes HTTP desta revisão. O perfil Colima dedicado está Broken e o processo existe, mas o socket recusa conexão. Não foi forçada a parada nem realizada limpeza de runtime. É necessário recuperar esse ambiente antes da aprovação funcional.
+A execução foi aprovada em 15/10/2026: nginx -t, php -l, cinco serviços em execução, consulta às 12 tabelas, nove respostas HTTP 200, três destinos X-Upstream e conteúdo idêntico. O teste foi repetido após docker-compose stop e up -d, com aprovação. Capturas reais do terminal e da aplicação acompanham os JSONs.
+
+O healthcheck do MySQL executa SELECT 1 autenticado no banco da aplicação, lendo a senha de arquivo. Isso confirma disponibilidade do banco utilizado pelo WordPress.
 
 ## Dependências e referências oficiais
 

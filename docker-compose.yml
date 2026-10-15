@@ -20,7 +20,12 @@ services:
           create_host_path: false
     networks: [persistencia]
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "--host=127.0.0.1", "--silent"]
+      test:
+        - CMD-SHELL
+        - >-
+          MYSQL_PWD="$$(cat /run/secrets/senha_aplicacao)"
+          mysql --user=aplicacao --host=127.0.0.1 --database=experimento
+          --execute='SELECT 1' >/dev/null 2>&1
       start_period: 30s
       interval: 5s
       timeout: 3s

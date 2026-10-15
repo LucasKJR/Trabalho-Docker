@@ -1,51 +1,44 @@
-# Evidências da execução
+# Evidências verificadas em 15/10/2026
 
-Esta pasta recebe provas produzidas exclusivamente com o código desta revisão. Logs e JSON ajudam a conferir os testes, mas **não substituem prints reais do terminal e da aplicação**.
+O código desta revisão foi executado na porta local 8086. O registro checagem-runtime.json contém APROVADO_RUNTIME, cinco serviços, nove HTTP 200, três destinos X-Upstream e o mesmo SHA-256 do HTML. persistencia-2026-10-15.txt registra stop/up e a aprovação posterior.
 
-## Situação atual
+## Capturas reais
 
-- Código e scripts disponíveis no repositório.
-- Verificações estáticas disponíveis em validacao-estatica.json e checagem-estatica.json.
-- Execução pendente: o perfil Colima dedicado t está Broken e a porta 8086 não responde.
-- Não há capturas atuais de cinco contêineres ativos nem da aplicação funcionando nesta revisão.
-- Não foram copiadas imagens, scripts ou resultados de outro trabalho, nem reaproveitadas provas de outra configuração como se fossem atuais.
+| Arquivo em capturas/ | Conteúdo |
+|---|---|
+| 01-terminal-containers.png | Terminal real: cinco serviços ativos, saúde e porta 8086 |
+| 02-terminal-balanceamento.png | Terminal real: nove cabeçalhos X-Upstream e HTTP 200 |
+| 03-terminal-validacao.png | Terminal real: nginx -t, php -l, APROVADO_RUNTIME e 12 tabelas |
+| site-desktop.png | Página inicial instalada, viewport 1440 px |
+| site-mobile.png | Página inicial instalada, viewport 390 px |
+| navegador-http.json | Nove respostas Document observadas por Chromium/CDP, com status e X-Upstream |
 
-## Produzir o registro
+As capturas do Terminal foram feitas diretamente de janelas dedicadas, excluindo a barra de título. As imagens da aplicação foram capturadas pelo navegador, com perfil novo e sem autenticação. Não há captura visual de DevTools: os cabeçalhos aparecem no terminal real e no JSON do navegador. Os IPs podem mudar em outra execução.
 
-No Terminal configurado para o Docker deste projeto:
+## Reproduzir
+
+No Terminal configurado para este Docker, na pasta do projeto:
 
 ```sh
 python3 scripts/preparar.py
-python3 scripts/verificar.py --estatico
+docker-compose config --quiet
 docker-compose up -d
 docker-compose ps
 python3 scripts/verificar.py
 ```
 
-O verificador não inicia, para ou remove contêineres e não instala ferramentas. Faz nove requisições locais, confere os destinos e o conteúdo e salva checagem-runtime.json. Código de saída 2 significa bloqueio ou reprovação; somente APROVADO_RUNTIME indica que os checks descritos foram concluídos. O preparador e o verificador não são testes de carga.
+O verificador não inicia, para ou remove contêineres. Ele grava texto/JSON, sem produzir screenshots. Código de saída 2 indica bloqueio/reprovação. Os arquivos de verificação estática registram a estrutura e não substituem os testes de execução. Não houve teste de carga.
 
-## Prints reais que precisam ser entregues
+Para nova captura, mostre apenas os comandos e a aplicação local. Não inclua senhas, arquivos de segredos, cookies ou telas pessoais.
 
-Salve capturas reais, sem dados pessoais ou segredos, em capturas/:
+## Capturas da execução
 
-| Nome sugerido | O que deve aparecer |
-|---|---|
-| 01-terminal-containers.png | Comando docker-compose ps e cinco serviços ativos; WordPress/banco saudáveis |
-| 02-terminal-balanceamento.png | Requisições curl e três valores X-Upstream |
-| 03-terminal-validacao.png | nginx -t, verificador aprovado e consulta ao banco sem senha visível |
-| 04-aplicacao.png | Página inicial do WordPress instalado na URL local desta revisão |
-| 05-navegador-cabecalhos.png | Cabeçalhos da requisição da aplicação, incluindo X-Upstream |
+![Cinco serviços ativos](capturas/01-terminal-containers.png)
 
-Comandos úteis para o print do balanceamento:
+![Balanceamento e HTTP 200](capturas/02-terminal-balanceamento.png)
 
-```sh
-for i in 1 2 3 4 5 6 7 8 9; do curl -sSI http://127.0.0.1:8086/; done
-```
+![Validação e banco](capturas/03-terminal-validacao.png)
 
-Capture a janela real usada para executar os comandos. Não converta texto de log em uma imagem apresentada como print. Não fotografe senhas, .env, arquivos em segredos, cookies ou telas pessoais. No navegador, abra somente a aplicação local; não é necessário entrar no painel administrativo para comprovar a página inicial.
+![Aplicação em desktop](capturas/site-desktop.png)
 
-## Conferência antes de publicar
-
-Confirme que os IPs dos prints coincidem com o registro da execução, que a aplicação utiliza a URL/porta documentada e que não são capturas da tela de instalação apresentadas como site pronto. Registre o estado com honestidade se algum teste falhar.
-
-Nenhuma imagem placeholder foi criada. A ausência dos PNGs indicados significa que as capturas ainda estão pendentes.
+![Aplicação em celular](capturas/site-mobile.png)
