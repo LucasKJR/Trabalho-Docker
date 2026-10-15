@@ -8,7 +8,6 @@
     "nginx:1.19.0"
   ],
   "preservacao_segredos_preparador": "confirmada por comparacao de hashes antes/depois",
-  "nenhum_push_realizado": true,
   "evidencias_desta_revisao": [
     "validacao-estatica.json"
   ],
