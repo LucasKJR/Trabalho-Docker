@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-15T13:24:22.932558+00:00",
+  "modo": "estatico",
+  "checagens": [],
+  "status": "APROVADO_ESTATICO_RUNTIME_NAO_TESTADO",
+  "estrutura": {
+    "servicos": 5,
+    "imagens_corretas": true,
+    "apenas_nginx_publicado_em_loopback": true,
+    "privileged": false
+  }
+}

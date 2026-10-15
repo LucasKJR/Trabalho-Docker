@@ -1,0 +1,25 @@
+{
+  "utc": "2026-10-15T13:25:39.061815+00:00",
+  "modo": "runtime",
+  "checagens": [
+    {
+      "nome": "servidor_docker",
+      "comando": [
+        "docker",
+        "info",
+        "--format",
+        "{{.Name}}"
+      ],
+      "exit_code": 1,
+      "saida": "\nCannot connect to the Docker daemon at unix:///tmp/trabalho-docker-ssd/colima/t/docker.sock. Is the docker daemon running?\n"
+    }
+  ],
+  "status": "BLOQUEADO_OU_REPROVADO",
+  "estrutura": {
+    "servicos": 5,
+    "imagens_corretas": true,
+    "apenas_nginx_publicado_em_loopback": true,
+    "privileged": false
+  },
+  "erro": "servidor_docker: comando nao concluiu; confira a saida registrada"
+}

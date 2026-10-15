@@ -19,6 +19,7 @@ As imagens são mysql:5.7, wordpress:5.4.2-php7.2-apache e nginx:1.19.0. Somente
 | config/wordpress.php | Configuração de banco e sessões, sem senhas embutidas |
 | scripts/abrir-wordpress.sh | Copia os arquivos da imagem e inicia Apache |
 | scripts/preparar.py | Cria diretórios e segredos locais, preservando os existentes |
+| scripts/verificar.py | Registra os checks sem iniciar/parar containers; nao gera imagens |
 | segredos/ | Senhas e semente de sessão; excluídos do Git |
 | html/ e data/mysql/ | Dados de execução; excluídos do Git |
 | documentacao/ | Relatório e evidências específicas desta revisão |
@@ -69,3 +70,7 @@ MySQL 5.7 usa linux/amd64 no Apple Silicon. A configuração WordPress é fornec
 As versões foram fixadas para a atividade. Atualizações automáticas e cron do WordPress ficam desabilitados somente nesta instância local para preservar o experimento. O banco tem limites de conexão e buffer apropriados a um laboratório pequeno. As licenças e os avisos das imagens permanecem intactos; o repositório não distribui o código dessas dependências.
 
 Referências técnicas oficiais em documentacao/ADAPTACOES.md. As evidências registram os limites atuais, sem reaproveitar resultados de outra configuração como prova desta revisão.
+
+## Entrega: codigo, scripts e prints
+
+O roteiro de evidencias esta em [documentacao/evidencias/README.md](documentacao/evidencias/README.md). Ele lista os prints reais do terminal, aplicacao e cabecalhos necessarios para completar a entrega. A pasta capturas ainda nao contem esses prints: a execucao da revisao esta bloqueada. Nenhum resultado alheio ou imagem gerada a partir de texto sera apresentado como prova de funcionamento.
