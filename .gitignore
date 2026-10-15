@@ -40,3 +40,7 @@ ACESSO-LOCAL.txt
 *.pyc
 *.log
 .DS_Store
+
+# Credenciais do experimento e novos dados persistentes
+segredos/
+data/

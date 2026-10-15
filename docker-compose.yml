@@ -1,84 +1,182 @@
-name: trabalho-docker-academico
-
-x-wordpress: &wordpress
-  image: wordpress:5.4.2-php7.2-apache
-  user: "${LOCAL_UID:-501}:${LOCAL_GID:-20}"
-  entrypoint: ["bash", "/opt/laboratorio/iniciar-wordpress.sh"]
-  environment:
-    APACHE_RUN_USER: "#${LOCAL_UID:-501}"
-    APACHE_RUN_GROUP: "#${LOCAL_GID:-20}"
-    WORDPRESS_DB_HOST: mysql:3306
-    WORDPRESS_DB_USER: usr-wordpress
-    WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:?Defina MYSQL_PASSWORD no .env}
-    WORDPRESS_DB_NAME: wordpress
-  volumes:
-    - ./html:/var/www/html
-    - ./iniciar-wordpress.sh:/opt/laboratorio/iniciar-wordpress.sh:ro
-  networks:
-    - web
-    - banco
-  healthcheck:
-    test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1',80)?0:1);"]
-    interval: 10s
-    timeout: 5s
-    retries: 30
-
+name: ${COMPOSE_PROJECT_NAME:-wordpress-experimento}
 services:
-  mysql:
+  database:
     image: mysql:5.7
     platform: linux/amd64
+    command: ["--innodb-buffer-pool-size=64M", "--max-connections=40"]
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Defina MYSQL_ROOT_PASSWORD no .env}
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: usr-wordpress
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Defina MYSQL_PASSWORD no .env}
+      MYSQL_DATABASE: experimento
+      MYSQL_USER: aplicacao
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/senha_root
+      MYSQL_PASSWORD_FILE: /run/secrets/senha_aplicacao
+    secrets:
+      - senha_root
+      - senha_aplicacao
     volumes:
-      - ./dados/mysql:/var/lib/mysql
-    networks:
-      - banco
+      - type: bind
+        source: ./data/mysql
+        target: /var/lib/mysql
+        bind:
+          create_host_path: false
+    networks: [persistencia]
     healthcheck:
-      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_PASSWORD\" mysql -h 127.0.0.1 -u\"$$MYSQL_USER\" -D wordpress -e 'SELECT 1' >/dev/null 2>&1"]
-      interval: 10s
-      timeout: 5s
-      retries: 60
+      test: ["CMD", "mysqladmin", "ping", "--host=127.0.0.1", "--silent"]
       start_period: 30s
+      interval: 5s
+      timeout: 3s
+      retries: 60
 
   wordpress1:
-    <<: *wordpress
+    image: wordpress:5.4.2-php7.2-apache
+    user: "${LOCAL_UID:?Execute scripts/preparar.py}:${LOCAL_GID:?Execute scripts/preparar.py}"
+    entrypoint: ["/bin/sh", "/opt/experimento/abrir-wordpress.sh"]
+    environment:
+      APACHE_RUN_USER: "#${LOCAL_UID}"
+      APACHE_RUN_GROUP: "#${LOCAL_GID}"
+      WP_DATABASE: experimento
+      WP_USER: aplicacao
+      SITE_URL: ${SITE_URL:-http://127.0.0.1:8086}
+    secrets:
+      - senha_aplicacao
+      - semente_sessao
     depends_on:
-      mysql:
+      database:
         condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./html
+        target: /var/www/html
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./config/wordpress.php
+        target: /var/www/html/wp-config.php
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./scripts/abrir-wordpress.sh
+        target: /opt/experimento/abrir-wordpress.sh
+        read_only: true
+    networks: [requisicoes, persistencia]
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(is_file('/var/www/html/wp-includes/version.php') && @fsockopen('127.0.0.1', 80) ? 0 : 1);"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
 
   wordpress2:
-    <<: *wordpress
+    image: wordpress:5.4.2-php7.2-apache
+    user: "${LOCAL_UID:?Execute scripts/preparar.py}:${LOCAL_GID:?Execute scripts/preparar.py}"
+    entrypoint: ["/bin/sh", "/opt/experimento/abrir-wordpress.sh"]
+    environment:
+      APACHE_RUN_USER: "#${LOCAL_UID}"
+      APACHE_RUN_GROUP: "#${LOCAL_GID}"
+      WP_DATABASE: experimento
+      WP_USER: aplicacao
+      SITE_URL: ${SITE_URL:-http://127.0.0.1:8086}
+    secrets:
+      - senha_aplicacao
+      - semente_sessao
     depends_on:
       wordpress1:
         condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./html
+        target: /var/www/html
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./config/wordpress.php
+        target: /var/www/html/wp-config.php
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./scripts/abrir-wordpress.sh
+        target: /opt/experimento/abrir-wordpress.sh
+        read_only: true
+    networks: [requisicoes, persistencia]
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(is_file('/var/www/html/wp-includes/version.php') && @fsockopen('127.0.0.1', 80) ? 0 : 1);"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
 
   wordpress3:
-    <<: *wordpress
+    image: wordpress:5.4.2-php7.2-apache
+    user: "${LOCAL_UID:?Execute scripts/preparar.py}:${LOCAL_GID:?Execute scripts/preparar.py}"
+    entrypoint: ["/bin/sh", "/opt/experimento/abrir-wordpress.sh"]
+    environment:
+      APACHE_RUN_USER: "#${LOCAL_UID}"
+      APACHE_RUN_GROUP: "#${LOCAL_GID}"
+      WP_DATABASE: experimento
+      WP_USER: aplicacao
+      SITE_URL: ${SITE_URL:-http://127.0.0.1:8086}
+    secrets:
+      - senha_aplicacao
+      - semente_sessao
     depends_on:
       wordpress2:
         condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./html
+        target: /var/www/html
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./config/wordpress.php
+        target: /var/www/html/wp-config.php
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./scripts/abrir-wordpress.sh
+        target: /opt/experimento/abrir-wordpress.sh
+        read_only: true
+    networks: [requisicoes, persistencia]
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(is_file('/var/www/html/wp-includes/version.php') && @fsockopen('127.0.0.1', 80) ? 0 : 1);"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
 
   nginx:
     image: nginx:1.19.0
-    ports:
-      - "127.0.0.1:8080:80"
     depends_on:
-      wordpress1:
-        condition: service_healthy
-      wordpress2:
-        condition: service_healthy
       wordpress3:
         condition: service_healthy
+    ports:
+      - target: 80
+        published: "${HTTP_PORT:-8086}"
+        host_ip: 127.0.0.1
+        protocol: tcp
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./html:/usr/share/nginx/html:ro
-    networks:
-      - web
+      - type: bind
+        source: ./config/balanceamento.conf
+        target: /etc/nginx/conf.d/default.conf
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./html
+        target: /usr/share/nginx/html
+        read_only: true
+        bind:
+          create_host_path: false
+    networks: [requisicoes]
 
 networks:
-  web:
-  banco:
+  requisicoes:
+  persistencia:
     internal: true
+
+secrets:
+  senha_root:
+    file: ./segredos/senha_root
+  senha_aplicacao:
+    file: ./segredos/senha_aplicacao
+  semente_sessao:
+    file: ./segredos/semente_sessao

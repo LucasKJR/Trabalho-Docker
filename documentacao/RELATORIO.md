@@ -1,74 +1,63 @@
-# WordPress com múltiplas instâncias, Nginx e Docker Compose
+# WordPress com balanceamento de carga em cinco contêineres
 
-Aluno e turma: preencher antes da entrega.
+Aluno e turma: preencher.
 
-Data dos testes: 14 de outubro de 2026.
+Data da revisão: 15 de outubro de 2026.
 
 ## Objetivo
 
-Executar três instâncias WordPress conectadas ao mesmo MySQL, utilizando Nginx como balanceador de carga. Verificar a distribuição das requisições por meio do cabeçalho HTTP X-Upstream.
+Preparar um experimento em que Nginx encaminha requisições a três instâncias WordPress que compartilham arquivos e um banco MySQL. A identificação do destino deve ser observável por X-Upstream.
+
+## Requisitos
+
+Exatamente cinco serviços, com mysql:5.7, wordpress:5.4.2-php7.2-apache e nginx:1.19.0. WordPress e MySQL não publicam portas no host. Os três WordPress compartilham /var/www/html e usam o mesmo banco. Nginx monta a mesma pasta em /usr/share/nginx/html.
 
 ## Arquitetura
 
-Navegador → 127.0.0.1:8080 → Nginx → WordPress 1, 2 ou 3 → MySQL.
+Navegador → 127.0.0.1:8086 → Nginx → wordpress1, wordpress2 ou wordpress3 → database.
 
-O Compose define cinco serviços. Nginx utiliza round-robin padrão e o DNS do Docker. Os três WordPress compartilham o banco wordpress e o diretório html em /var/www/html. Nginx monta o mesmo diretório em /usr/share/nginx/html, somente para leitura. O banco persiste em dados/mysql. Esses dados e o perfil dedicado ficam no SSD externo.
+A rede de requisições conecta Nginx e WordPress. A rede interna de persistência conecta WordPress e MySQL. Os diretórios html e data/mysql são bind mounts que podem ficar no SSD. Senhas e semente de sessão são arquivos locais separados, entregues somente aos serviços que precisam deles.
 
-## Atendimento ao enunciado
+## Implementação
 
-| Requisito | Implementação |
-|---|---|
-| Cinco contêineres | mysql, wordpress1, wordpress2, wordpress3 e nginx |
-| Imagens exigidas | mysql:5.7, wordpress:5.4.2-php7.2-apache, nginx:1.19.0 |
-| Banco comum | Mesmo host mysql:3306, banco e usuário nos três WordPress |
-| Host acessa somente Nginx | Apenas Nginx publica 127.0.0.1:8080 |
-| Compartilhamento | html comum aos três WordPress e Nginx |
-| Balanceamento verificável | upstream com três serviços e cabeçalho X-Upstream |
+O arquivo Compose declara cinco serviços explicitamente. Os WordPress iniciam em sequência após a prontidão das dependências. O script de inicialização copia a distribuição da imagem para a pasta de arquivos compartilhados. A configuração PHP é montada somente para leitura e lê segredos de arquivos em /run/secrets; não é necessário editar PHP com sed no SSD.
 
-## Ambiente e adaptações
+O Nginx utiliza um arquivo em conf.d, preservando a configuração principal da imagem oficial. O pool contém os três WordPress. São configurados conexões persistentes, tempos limite e o cabeçalho X-Upstream. O endpoint /saude-proxy verifica somente o proxy e não comprova comunicação com WordPress ou banco.
 
-Mac Apple Silicon ARM64 com macOS 26.6.2; Docker CLI 29.6.2, Engine 29.5.2, Compose independente 5.3.1 e Colima 0.10.3. SSD APFS de 1 TB. O perfil dedicado t utiliza 2 CPUs e 3 GiB de RAM e compartilha somente a pasta do trabalho. O perfil anterior continua ativo e selecionado globalmente.
+MySQL 5.7 utiliza linux/amd64 em Apple Silicon, com limites de memória e conexões para um laboratório pequeno. A URL de WordPress é definida por SITE_URL. Cron e atualizações automáticas ficam desabilitados nesta instância para manter as versões e o comportamento do experimento.
 
-MySQL 5.7 executa em AMD64 emulado; WordPress e Nginx utilizam ARM64. A imagem antiga utiliza sed 4.7, que falhou ao criar temporários no VirtioFS/APFS. Um script curto incluído na entrega executa o entrypoint oficial primeiro no filesystem Linux do contêiner e copia os arquivos prontos ao SSD. Isso preserva as imagens exigidas e evita alterar permissões do Mac. O script externo do repositório não foi executado.
+## Verificações realizadas
 
-## Procedimento
+- Compose resolvido sem erro, com exatamente cinco serviços e as tags exigidas.
+- Uma única publicação de porta: 127.0.0.1:8086, no Nginx.
+- Ausência de publicação de portas no banco e nos WordPress.
+- Rede de persistência interna e Nginx fora dessa rede.
+- Senha root do MySQL não entregue aos serviços WordPress.
+- Nenhum serviço configurado como privileged.
+- Sintaxe shell aprovada; preparador reexecutado sem substituir segredos existentes.
 
-Foram lidos o Google Docs e os arquivos relevantes do GitHub. Após inspeção do SSD, Docker e portas, foi criado o perfil separado autorizado com discos no SSD. As imagens oficiais foram baixadas, o Compose validado e os serviços iniciados em sequência. O WordPress foi instalado localmente com dados fictícios, senha exclusiva e envio de email desativado. Sua URL foi definida como http://127.0.0.1:8080.
+Essas verificações são estáticas e de preparação. Não demonstram que os contêineres desta revisão funcionam em conjunto.
 
-## Resultados observados
+## Bloqueio e testes pendentes
 
-- Cinco contêineres ativos; MySQL e três WordPress saudáveis.
-- nginx -t: configuração válida.
-- Página inicial do site instalado: HTTP 200.
-- Seis requisições GET produziram o mesmo SHA-256 do HTML entre os três servidores, confirmando conteúdo idêntico.
-- Nove requisições HEAD apresentaram X-Upstream 172.18.0.2:80, 172.18.0.3:80 e 172.18.0.4:80, correspondentes aos WordPress na rede web.
-- MySQL: banco wordpress com as 12 tabelas da instalação.
-- Somente Nginx publica porta; escuta real do Mac conferida em 127.0.0.1:8080.
-- Inspeção dos cinco serviços: privileged=false; montagens restritas aos arquivos e dados deste trabalho.
-- Parar e retomar foi submetido a teste; o registro completo está em evidencias/parar-retomar.txt.
+O perfil Colima dedicado foi encontrado parado e a tentativa de retomada informou estado Broken, com processo existente e socket recusando conexão. Não foi forçada a parada do processo nem alterado o perfil padrão. Os dados e a implementação anterior permanecem preservados.
 
-Os testes podem ser repetidos com source ./ambiente.sh e python3 verificar.py. IPs são internos e podem mudar ao recriar redes; compare com a inspeção dos contêineres da execução atual.
+Ainda são necessários: php -l na versão PHP 7.2, nginx -t, início dos cinco serviços, instalação WordPress, HTTP 200, alternância de três X-Upstream, igualdade do conteúdo entre instâncias, consulta ao banco, teste de persistência após parar/retomar e screenshots reais desta revisão. Nenhuma evidência de outra configuração foi apresentada como prova do código atual.
 
-## Evidências e limitações
+## Conclusão provisória
 
-Acompanham a entrega: listagem de contêineres, configuração validada, cabeçalhos HTTP, consulta ao banco, inspeção de portas/montagens/redes, logs e HTML recebido do site. Foram incluídas screenshots reais de desktop (1440 × 1405) e viewport mobile (390 × 1324), obtidas com Chromium headless em perfil novo e conferidas visualmente. A captura de rede do navegador registrou nove respostas HTTP 200 e os três X-Upstream. Nenhum login foi usado; cookies, tokens e cabeçalhos de autenticação não foram exportados. O teste mobile utiliza viewport emulado, não um iPhone físico.
+A revisão passou nas verificações estruturais e de preparação. A aprovação funcional permanece pendente da recuperação do ambiente dedicado e da execução dos testes descritos. Esta conclusão registra o limite observado e não afirma funcionamento que ainda não foi comprovado.
 
-Executáveis Docker/Compose/Colima, caches, contextos e temporários de sistema continuam no Mac. Arquivos do projeto, dados persistentes e discos do perfil dedicado ficam no SSD. As tags antigas foram preservadas por exigência do enunciado; o ambiente foi limitado a acesso local para uso acadêmico.
+## Referências técnicas oficiais
 
-## Capturas reais
+Docker Compose: https://docs.docker.com/reference/compose-file/services/
 
-Figura 1: página inicial no Chromium headless, largura de desktop de 1440 pixels.
+Secrets Compose: https://docs.docker.com/reference/compose-file/secrets/
 
-Figura 2: a mesma página no viewport mobile de 390 pixels.
+WordPress: https://developer.wordpress.org/advanced-administration/wordpress/wp-config/
 
-Ambas mostram o conteúdo padrão do WordPress instalado no laboratório. Os arquivos originais PNG estão na pasta evidencias.
+Nginx upstream: https://nginx.org/en/docs/http/ngx_http_upstream_module.html
 
-## Conclusão
+Nginx proxy: https://nginx.org/en/docs/http/ngx_http_proxy_module.html
 
-Os testes demonstraram três instâncias WordPress por trás do Nginx, conectadas ao mesmo MySQL. Os três valores de X-Upstream comprovaram a distribuição das requisições. Configuração, evidências verificadas e screenshots reais acompanham a entrega.
-
-## Referências
-
-Enunciado: https://docs.google.com/document/d/1QbbGhd3xa76m16SvdwppHIxoj3QuCgFfIuFDh97gY8A/edit
-
-Repositório: https://github.com/AmiltonRocha/Trabalho-Docker/tree/main — revisão c50b772279962485fd8faecec776472f8468e7fc.
+As imagens e distribuições mantêm seus avisos de licença e autoria. O projeto não reivindica autoria dessas dependências.

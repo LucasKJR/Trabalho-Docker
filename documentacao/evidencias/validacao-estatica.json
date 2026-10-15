@@ -1,0 +1,20 @@
+{
+  "servicos": [
+    "database",
+    "nginx",
+    "wordpress1",
+    "wordpress2",
+    "wordpress3"
+  ],
+  "tags_exigidas": true,
+  "porta_publicada": "127.0.0.1:8086",
+  "sem_portas_no_banco_ou_wordpress": true,
+  "nenhum_privileged": true,
+  "raiz_mysql_nao_entregue_ao_wordpress": true,
+  "rede_banco_interna": true,
+  "script_shell_sintaticamente_valido": true,
+  "preparador_reexecutado_sem_sobrescrever_segredos": true,
+  "execucao_containers": "PENDENTE: perfil Colima t Broken; processo ainda existe e socket recusa conexao",
+  "nginx_t": "PENDENTE",
+  "php_lint": "PENDENTE: PHP local indisponivel"
+}

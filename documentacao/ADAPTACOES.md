@@ -1,28 +1,32 @@
-# Adaptações do trabalho executado no Mac/SSD
+# Decisões técnicas
 
-A atividade e as tags seguem o Google Docs e a pasta trabalho2 de AmiltonRocha/Trabalho-Docker, revisão c50b772279962485fd8faecec776472f8468e7fc. Esta implementação foi configurada e testada no computador; não é uma cópia literal nem reivindica autoria exclusiva das referências. Não foi encontrada uma licença no repositório consultado, e nenhuma licença nova foi atribuída ao conteúdo de referência.
+A configuração foi elaborada para os requisitos da atividade: três servidores WordPress, um banco comum, Nginx como único ponto publicado e arquivos compartilhados com o host. Os documentos descrevem somente o experimento e suas dependências técnicas.
 
-| Diferença | Justificativa |
-|---|---|
-| MySQL com platform linux/amd64 | A tag 5.7 não apresenta ARM64 no manifesto inspecionado; executa pela emulação do ambiente Docker |
-| Inicialização WordPress em /tmp antes de copiar ao SSD | O sed 4.7 da imagem falhou no VirtioFS/APFS; o script usa o entrypoint oficial no filesystem Linux e copia os arquivos prontos |
-| UID/GID local no WordPress | Compatibilidade de escrita no diretório compartilhado, sem alterar permissões do Mac |
-| Porta 127.0.0.1:8080:80 | Isolamento local e conveniência; difere da porta 80 do host no exemplo. Nginx continua em 80 dentro do contêiner |
-| Senhas via .env | Evita publicar senhas fixas ou reais; mantém banco e usuário comuns |
-| MySQL em ./dados/mysql | Mantém os dados persistentes acessíveis no SSD em vez de volume nomeado dentro da VM |
-| Redes web e banco, banco interna | Isolamento adicional; Nginx não participa da rede MySQL |
-| Nomes gerados por projeto | Evita colisões com outros projetos; serviços mantêm nomes mysql/wordpress1/wordpress2/wordpress3/nginx |
-| Healthchecks e início sequencial | Espera pelo banco e evita inicialização concorrente da pasta compartilhada |
-| Sem restart automático | Evita iniciar ao boot com SSD desconectado |
-| Nginx usa $http_host | Preserva a porta 8080 nos redirecionamentos |
-| X-Upstream com always e X-Forwarded-Proto | Facilita diagnóstico e encaminhamento pelo proxy |
-| Âncora YAML e name no Compose | Organização da configuração para o Compose atual |
+## Configuração
 
-As cinco imagens/serviços, o banco comum, os caminhos compartilhados, o balanceamento e a ausência de portas publicadas no WordPress/MySQL foram mantidos. Os exemplos opcionais da raiz do repositório de referência, incluindo extras com socket Docker, não integram este projeto.
+- O Compose define cinco serviços explicitamente, com bind mounts na sintaxe longa e sem criação automática de caminhos ausentes. O preparador cria os caminhos antes da execução.
+- As senhas de banco e a semente de sessão são arquivos locais usados como secrets. Apenas MySQL recebe a senha root; WordPress recebe a senha da aplicação e a semente de sessão.
+- config/wordpress.php lê os valores em tempo de execução. As chaves de autenticação e salts são valores distintos derivados de uma semente aleatória persistente, compartilhados pelas três instâncias. A URL vem de SITE_URL.
+- O script de início copia a distribuição WordPress presente na imagem oficial para a pasta compartilhada e inicia Apache. O arquivo de configuração é montado separadamente em modo somente leitura. Isso evita edições com sed no VirtioFS/APFS.
+- MySQL usa emulação AMD64. WordPress e Nginx podem usar as variantes ARM64 disponíveis das tags indicadas.
+- Nginx mantém a configuração principal da imagem; conf.d recebe o pool de três servidores, conexões HTTP persistentes, tempos limite e o cabeçalho X-Upstream. O balanceamento padrão é round-robin.
+- A rede de persistência é interna. Nginx participa apenas da rede de requisições e publica somente 127.0.0.1:8086.
 
-O código publicado é o Compose/Nginx/script presente na pasta funcional do SSD. A pasta de publicação não inclui histórico ou arquivos .git do fork anterior. A publicação tem um commit inicial novo, sem pais. Relatórios e imagens registram os testes efetivamente realizados, sem executar novamente a instalação durante o upload.
+## Estado de validação
 
-Referências:
+Foram aprovadas a resolução Compose, a conferência de cinco serviços e tags, isolamento de portas, redes, separação da senha root e sintaxe shell. O preparador foi reexecutado em pasta temporária para verificar preservação dos arquivos.
 
-- https://docs.google.com/document/d/1QbbGhd3xa76m16SvdwppHIxoj3QuCgFfIuFDh97gY8A/edit
-- https://github.com/AmiltonRocha/Trabalho-Docker/tree/main
+Não foram concluídos php -l, nginx -t nem testes HTTP desta revisão. O perfil Colima dedicado está Broken e o processo existe, mas o socket recusa conexão. Não foi forçada a parada nem realizada limpeza de runtime. É necessário recuperar esse ambiente antes da aprovação funcional.
+
+## Dependências e referências oficiais
+
+Os arquivos de configuração não incorporam a distribuição WordPress, Nginx ou MySQL. As imagens oficiais continuam contendo seus próprios avisos de licença e autoria, que não foram alterados. Não é atribuída autoria exclusiva sobre essas tecnologias.
+
+- Serviços Compose: https://docs.docker.com/reference/compose-file/services/
+- Secrets Compose: https://docs.docker.com/reference/compose-file/secrets/
+- Imagem WordPress: https://hub.docker.com/_/wordpress
+- Imagem MySQL: https://hub.docker.com/_/mysql
+- Configuração WordPress: https://developer.wordpress.org/advanced-administration/wordpress/wp-config/
+- Upstream Nginx: https://nginx.org/en/docs/http/ngx_http_upstream_module.html
+- Proxy Nginx: https://nginx.org/en/docs/http/ngx_http_proxy_module.html
+- Cabeçalhos Nginx: https://nginx.org/en/docs/http/ngx_http_headers_module.html

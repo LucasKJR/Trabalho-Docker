@@ -1,0 +1,16 @@
+{
+  "data_utc": "2026-10-15T11:49:20.917235+00:00",
+  "status": "VALIDACAO_ESTATICA_APROVADA_EXECUCAO_PENDENTE",
+  "servicos": 5,
+  "imagens": [
+    "mysql:5.7",
+    "wordpress:5.4.2-php7.2-apache",
+    "nginx:1.19.0"
+  ],
+  "preservacao_segredos_preparador": "confirmada por comparacao de hashes antes/depois",
+  "nenhum_push_realizado": true,
+  "evidencias_desta_revisao": [
+    "validacao-estatica.json"
+  ],
+  "bloqueio": "perfil Colima t Broken; processo existente e socket indisponivel; sem parada forcada"
+}
